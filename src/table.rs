@@ -1,4 +1,5 @@
 use crate::db::TransactionGuard;
+use crate::mutex::Mutex;
 use crate::sealed::Sealed;
 use crate::tree_store::{
     AccessGuardMutInPlace, Btree, BtreeExtractIf, BtreeHeader, BtreeMut, BtreeRangeIter,
@@ -12,7 +13,7 @@ use std::borrow::Borrow;
 use std::fmt::{Debug, Formatter};
 use std::marker::PhantomData;
 use std::ops::RangeBounds;
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 
 /// Informational storage stats about a table
 #[derive(Debug)]

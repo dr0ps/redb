@@ -1,3 +1,5 @@
+#[cfg(debug_assertions)]
+use crate::mutex::Mutex;
 use crate::tree_store::page_store::cached_file::WritablePage;
 use crate::tree_store::page_store::page_manager::MAX_MAX_PAGE_ORDER;
 use std::cmp::Ordering;
@@ -9,8 +11,6 @@ use std::hash::{Hash, Hasher};
 use std::mem;
 use std::ops::Range;
 use std::sync::Arc;
-#[cfg(debug_assertions)]
-use std::sync::Mutex;
 
 pub(crate) const MAX_VALUE_LENGTH: usize = 3 * 1024 * 1024 * 1024;
 pub(crate) const MAX_PAIR_LENGTH: usize = 3 * 1024 * 1024 * 1024 + 768 * 1024 * 1024;
@@ -199,7 +199,7 @@ impl Debug for PageImpl {
 #[cfg(debug_assertions)]
 impl Drop for PageImpl {
     fn drop(&mut self) {
-        let mut open_pages = self.open_pages.lock().unwrap();
+        let mut open_pages = self.open_pages.lock();
         let value = open_pages.get_mut(&self.page_number).unwrap();
         assert!(*value > 0);
         *value -= 1;
@@ -223,12 +223,7 @@ impl Clone for PageImpl {
     fn clone(&self) -> Self {
         #[cfg(debug_assertions)]
         {
-            *self
-                .open_pages
-                .lock()
-                .unwrap()
-                .get_mut(&self.page_number)
-                .unwrap() += 1;
+            *self.open_pages.lock().get_mut(&self.page_number).unwrap() += 1;
         }
         Self {
             mem: self.mem.clone(),
@@ -265,7 +260,7 @@ impl Page for PageMut {
 #[cfg(debug_assertions)]
 impl Drop for PageMut {
     fn drop(&mut self) {
-        assert!(self.open_pages.lock().unwrap().remove(&self.page_number));
+        assert!(self.open_pages.lock().remove(&self.page_number));
     }
 }
 

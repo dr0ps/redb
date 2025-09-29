@@ -92,6 +92,8 @@ mod db;
 mod error;
 mod legacy_tuple_types;
 mod multimap_table;
+mod mutex;
+mod rw_lock;
 mod sealed;
 mod table;
 mod transaction_tracker;
